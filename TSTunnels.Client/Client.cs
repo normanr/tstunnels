@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TSTunnels.Client.WtsApi32;
@@ -25,6 +26,7 @@ namespace TSTunnels.Client
 			channelInitEventDelegate = VirtualChannelInitEventProc;
 			channelOpenEventDelegate = VirtualChannelOpenEvent;
 			Streams = new Dictionary<int, Stream>();
+			Listeners = new Dictionary<int, TcpListener>();
 		}
 
 		public bool VirtualChannelInit()
@@ -151,6 +153,7 @@ namespace TSTunnels.Client
 
 		public int ConnectionCount { get; set; }
 		public IDictionary<int, Stream> Streams { get; private set; }
+		public IDictionary<int, TcpListener> Listeners { get; private set; }
 
 		public void WriteMessage(ChannelMessage msg)
 		{

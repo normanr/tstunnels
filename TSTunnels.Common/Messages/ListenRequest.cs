@@ -36,12 +36,20 @@ namespace TSTunnels.Common.Messages
 
 		public void Process(IStreamServer server)
 		{
-			TcpListenerHelper.Start(Address, Port, client =>
+			try
 			{
-				var streamIndex = --server.ConnectionCount;
-				server.Streams[streamIndex] = client.GetStream();
-				server.WriteMessage(new ListenResponse(StreamIndex, streamIndex));
-			});
+				server.Listeners[StreamIndex] = TcpListenerHelper.Start(Address, Port, client =>
+				{
+					var streamIndex = --server.ConnectionCount;
+					server.Streams[streamIndex] = client.GetStream();
+					server.WriteMessage(new AcceptRequest(StreamIndex, streamIndex, client.Client.RemoteEndPoint.ToString()));
+				}, exception => server.WriteMessage(new StreamError(StreamIndex, new EndOfStreamException().ToString())));
+				server.WriteMessage(new ListenResponse(StreamIndex));
+			}
+			catch (Exception ex)
+			{
+				server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
+			}
 		}
 	}
 }

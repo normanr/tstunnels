@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="IStreamServer.cs" />
     <Compile Include="Messages\ConnectResponse.cs" />
+    <Compile Include="Messages\AcceptRequest.cs" />
     <Compile Include="Messages\ListenResponse.cs" />
     <Compile Include="Messages\ListenRequest.cs" />
     <Compile Include="Messages\StreamData.cs" />

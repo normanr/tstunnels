@@ -8,22 +8,31 @@ namespace TSTunnels.Common
 {
 	public static class TcpListenerHelper
 	{
-		public static void Start(string listenAddress, int listenPort, Action<TcpClient> acceptDelegate)
+		public static TcpListener Start(string listenAddress, int listenPort, Action<TcpClient> acceptDelegate, Action<Exception> exceptionDelegate)
 		{
 			var listener = new TcpListener(IPAddress.Parse(listenAddress), listenPort);
 			listener.Start();
 			listener.BeginAcceptTcpClient(listener_AcceptTcpClient, (Converter<IAsyncResult, TcpListener>)delegate(IAsyncResult ar)
 			{
-				acceptDelegate(listener.EndAcceptTcpClient(ar));
-				return listener;
+				try
+				{
+					acceptDelegate(listener.EndAcceptTcpClient(ar));
+					return listener;
+				}
+				catch (Exception ex)
+				{
+					exceptionDelegate(ex);
+					return null;
+				}
 			});
+			return listener;
 		}
 
 		private static void listener_AcceptTcpClient(IAsyncResult ar)
 		{
 			var callback = (Converter<IAsyncResult, TcpListener>)ar.AsyncState;
 			var listener = callback(ar);
-			listener.BeginAcceptTcpClient(listener_AcceptTcpClient, callback);
+			if (listener != null) listener.BeginAcceptTcpClient(listener_AcceptTcpClient, callback);
 		}
 	}
 }
