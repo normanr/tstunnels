@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 
 namespace TSTunnels.Common.Messages
@@ -39,11 +40,17 @@ namespace TSTunnels.Common.Messages
 
 		public void Process(IStreamServer server)
 		{
+			ProcessStreams(server.Streams);
+			ProcessListeners(server.Listeners);
+		}
+
+		private void ProcessStreams(IDictionary<int, Stream> streams)
+		{
 			Stream stream;
-			lock (server.Streams)
+			lock (streams)
 			{
-				if (!server.Streams.ContainsKey(StreamIndex)) return;
-				stream = server.Streams[StreamIndex];
+				if (!streams.ContainsKey(StreamIndex)) return;
+				stream = streams[StreamIndex];
 			}
 			if (Exception.Length != 0)
 			{
@@ -63,9 +70,30 @@ namespace TSTunnels.Common.Messages
 			catch (IOException)
 			{
 			}
-			lock (server.Streams)
+			lock (streams)
 			{
-				if (server.Streams.ContainsKey(StreamIndex)) server.Streams.Remove(StreamIndex);
+				if (streams.ContainsKey(StreamIndex)) streams.Remove(StreamIndex);
+			}
+		}
+
+		private void ProcessListeners(IDictionary<int, TcpListener> listeners)
+		{
+			TcpListener listener;
+			lock (listeners)
+			{
+				if (!listeners.ContainsKey(StreamIndex)) return;
+				listener = listeners[StreamIndex];
+			}
+			try
+			{
+				listener.Stop();
+			}
+			catch (IOException)
+			{
+			}
+			lock (listeners)
+			{
+				if (listeners.ContainsKey(StreamIndex)) listeners.Remove(StreamIndex);
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using TSTunnels.Common.Messages;
 
@@ -10,6 +11,7 @@ namespace TSTunnels.Common
 	{
 		int ConnectionCount { get; set; }
 		IDictionary<int, Stream> Streams { get; }
+		IDictionary<int, TcpListener> Listeners { get; }
 		void WriteMessage(ChannelMessage msg);
 	}
 }

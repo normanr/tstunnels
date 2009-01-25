@@ -4,11 +4,12 @@ namespace TSTunnels.Common.Messages
 	{
 		Unknown = 0,
 		HelloRequest,
-		HelloReponse,
+		HelloResponse,
 		ConnectRequest,
 		ConnectResponse,
 		ListenRequest,
 		ListenResponse,
+		AcceptRequest,
 		StreamData,
 		StreamError,
 	}

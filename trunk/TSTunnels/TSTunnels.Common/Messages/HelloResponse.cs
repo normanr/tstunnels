@@ -9,7 +9,7 @@ namespace TSTunnels.Common.Messages
 		public readonly string MachineName;
 
 		public HelloResponse()
-			: base(MessageType.HelloReponse)
+			: base(MessageType.HelloResponse)
 		{
 			MachineName = Environment.MachineName;
 		}
