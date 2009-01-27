@@ -51,11 +51,8 @@
 			// 
 			// backgroundWorker1
 			// 
-			this.backgroundWorker1.WorkerReportsProgress = true;
 			this.backgroundWorker1.WorkerSupportsCancellation = true;
 			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-			this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-			this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
 			// 
 			// timer1
 			// 
@@ -101,7 +98,7 @@
 			this.groupBox2.Location = new System.Drawing.Point(12, 12);
 			this.groupBox2.Name = "groupBox2";
 			this.groupBox2.Size = new System.Drawing.Size(656, 189);
-			this.groupBox2.TabIndex = 2;
+			this.groupBox2.TabIndex = 0;
 			this.groupBox2.TabStop = false;
 			this.groupBox2.Text = "Port forwarding";
 			// 
@@ -111,7 +108,7 @@
 			this.remoteRadioButton.Location = new System.Drawing.Point(494, 163);
 			this.remoteRadioButton.Name = "remoteRadioButton";
 			this.remoteRadioButton.Size = new System.Drawing.Size(62, 17);
-			this.remoteRadioButton.TabIndex = 5;
+			this.remoteRadioButton.TabIndex = 6;
 			this.remoteRadioButton.Text = "Re&mote";
 			this.remoteRadioButton.UseVisualStyleBackColor = true;
 			// 
@@ -141,7 +138,7 @@
 			this.addButton.Location = new System.Drawing.Point(562, 160);
 			this.addButton.Name = "addButton";
 			this.addButton.Size = new System.Drawing.Size(88, 23);
-			this.addButton.TabIndex = 3;
+			this.addButton.TabIndex = 7;
 			this.addButton.Text = "A&dd";
 			this.addButton.UseVisualStyleBackColor = true;
 			this.addButton.Click += new System.EventHandler(this.addButton_Click);
@@ -152,7 +149,7 @@
 			this.removeButton.Location = new System.Drawing.Point(562, 19);
 			this.removeButton.Name = "removeButton";
 			this.removeButton.Size = new System.Drawing.Size(88, 23);
-			this.removeButton.TabIndex = 3;
+			this.removeButton.TabIndex = 10;
 			this.removeButton.Text = "&Remove";
 			this.removeButton.UseVisualStyleBackColor = true;
 			this.removeButton.Click += new System.EventHandler(this.removeButton_Click);
@@ -164,7 +161,7 @@
 			this.label4.Location = new System.Drawing.Point(212, 165);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(63, 13);
-			this.label4.TabIndex = 2;
+			this.label4.TabIndex = 3;
 			this.label4.Text = "Destination:";
 			// 
 			// label3
@@ -174,7 +171,7 @@
 			this.label3.Location = new System.Drawing.Point(6, 165);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(44, 13);
-			this.label3.TabIndex = 2;
+			this.label3.TabIndex = 1;
 			this.label3.Text = "Source:";
 			// 
 			// label2
@@ -184,7 +181,7 @@
 			this.label2.Location = new System.Drawing.Point(6, 146);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(123, 13);
-			this.label2.TabIndex = 2;
+			this.label2.TabIndex = 0;
 			this.label2.Text = "Add new forwarded port:";
 			// 
 			// label1
@@ -193,7 +190,7 @@
 			this.label1.Location = new System.Drawing.Point(6, 24);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(86, 13);
-			this.label1.TabIndex = 2;
+			this.label1.TabIndex = 8;
 			this.label1.Text = "Forwarded ports:";
 			// 
 			// forwardedPortsListBox
@@ -205,7 +202,7 @@
 			this.forwardedPortsListBox.Location = new System.Drawing.Point(9, 48);
 			this.forwardedPortsListBox.Name = "forwardedPortsListBox";
 			this.forwardedPortsListBox.Size = new System.Drawing.Size(641, 95);
-			this.forwardedPortsListBox.TabIndex = 1;
+			this.forwardedPortsListBox.TabIndex = 9;
 			// 
 			// sourceTextBox
 			// 
@@ -213,7 +210,7 @@
 			this.sourceTextBox.Location = new System.Drawing.Point(56, 162);
 			this.sourceTextBox.Name = "sourceTextBox";
 			this.sourceTextBox.Size = new System.Drawing.Size(150, 20);
-			this.sourceTextBox.TabIndex = 4;
+			this.sourceTextBox.TabIndex = 2;
 			// 
 			// Server
 			// 
@@ -229,6 +226,7 @@
 			this.Text = "TS Tunnels";
 			this.Load += new System.EventHandler(this.Server_Load);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Server_FormClosed);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Server_FormClosing);
 			this.groupBox1.ResumeLayout(false);
 			this.groupBox2.ResumeLayout(false);
 			this.groupBox2.PerformLayout();

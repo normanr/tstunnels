@@ -124,6 +124,8 @@ namespace TSTunnels.Client
 			}
 		}
 
+		#region Implementation of IStreamServer
+
 		public void MessageReceived(ChannelMessage msg)
 		{
 			switch (msg.Type)
@@ -149,8 +151,6 @@ namespace TSTunnels.Client
 			}
 		}
 
-		#region Implementation of IStreamServer
-
 		public int ConnectionCount { get; set; }
 		public IDictionary<int, Stream> Streams { get; private set; }
 		public IDictionary<int, TcpListener> Listeners { get; private set; }
@@ -163,6 +163,10 @@ namespace TSTunnels.Client
 			Marshal.WriteInt32(ptr, 0, data.Length);
 			Marshal.Copy(data, 0, new IntPtr(ptr.ToInt32() + 4), data.Length);
 			var ret = entryPoints.VirtualChannelWrite(OpenChannel, ptr, (uint)len, ptr);
+		}
+
+		public void Log(object message)
+		{
 		}
 
 		#endregion

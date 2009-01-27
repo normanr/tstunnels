@@ -8,12 +8,14 @@ namespace TSTunnels.Common.Messages
 	public class ConnectResponse : ChannelMessage
 	{
 		public readonly int StreamIndex;
+		public readonly string LocalEndPoint;
 		public readonly string RemoteEndPoint;
 
-		public ConnectResponse(int StreamIndex, string RemoteEndPoint)
+		public ConnectResponse(int StreamIndex, string RemoteEndPoint, string LocalEndPoint)
 			: base(MessageType.ConnectResponse)
 		{
 			this.StreamIndex = StreamIndex;
+			this.LocalEndPoint = LocalEndPoint;
 			this.RemoteEndPoint = RemoteEndPoint;
 		}
 
@@ -21,6 +23,7 @@ namespace TSTunnels.Common.Messages
 			: base(reader)
 		{
 			StreamIndex = reader.ReadInt32();
+			LocalEndPoint = reader.ReadString();
 			RemoteEndPoint = reader.ReadString();
 		}
 
@@ -28,19 +31,24 @@ namespace TSTunnels.Common.Messages
 		{
 			base.Serialize(writer);
 			writer.Write(StreamIndex);
+			writer.Write(LocalEndPoint);
 			writer.Write(RemoteEndPoint);
 		}
 
 		public override string ToString()
 		{
-			return base.ToString() + ": " + RemoteEndPoint;
+			return base.ToString() + ": " + RemoteEndPoint + " to " + LocalEndPoint;
 		}
 
 		public void Process(IStreamServer server)
 		{
 			new StreamPump(server.Streams[StreamIndex],
 				data => server.WriteMessage(new StreamData(StreamIndex, data)),
-				ex => server.WriteMessage(new StreamError(StreamIndex, ex.ToString()))).Pump();
+				ex =>
+				{
+					server.Log("Forwarded port closed: " + RemoteEndPoint + " to " + LocalEndPoint);
+					server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
+				}).Pump();
 		}
 	}
 }

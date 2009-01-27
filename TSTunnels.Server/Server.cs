@@ -47,6 +47,19 @@ namespace TSTunnels.Server
 			timer1.Enabled = true;
 		}
 
+		private bool CloseInProgress;
+		private void Server_FormClosing(object sender, FormClosingEventArgs e)
+		{
+			if (CloseInProgress || forwardedPortsListBox.Items.Count == 0) return;
+			CloseInProgress = true;
+			e.Cancel = true;
+			Log("Cancelling all port forwardings");
+			foreach (ForwardedPort forwardedPort in forwardedPortsListBox.Items)
+			{
+				forwardedPort.Remove();
+			}
+		}
+
 		private void Server_FormClosed(object sender, FormClosedEventArgs e)
 		{
 			if (reader != null) reader.Close();
@@ -62,24 +75,17 @@ namespace TSTunnels.Server
 				{
 					var len = reader.ReadInt32();
 					var buff = reader.ReadBytes(len);
-					backgroundWorker1.ReportProgress(0, buff);
+					MessageReceived(ChannelMessage.FromByteArray(buff));
 				}
 				catch (OperationCanceledException)
 				{
 					return;
 				}
+				catch (Exception ex)
+				{
+					Log(ex);
+				}
 			}
-		}
-
-		private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
-		{
-			if (backgroundWorker1.CancellationPending) return;
-			MessageReceived(ChannelMessage.FromByteArray((byte[])e.UserState));
-		}
-
-		private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-		{
-			var r = e.Result;
 		}
 
 		private void timer1_Tick(object sender, EventArgs e)
@@ -121,7 +127,6 @@ namespace TSTunnels.Server
 			{
 				ListenResponse = response =>
 				{
-					Log("Local port forwarding from " + listenAddress + ":" + listenPort + " enabled");
 					forwardedPort = new ForwardedPort
 					{
 						Direction = ForwardDirection.Local,
@@ -134,7 +139,13 @@ namespace TSTunnels.Server
 							WriteMessage(new StreamError(listenIndex, new EndOfStreamException().ToString()));
 						},
 					};
-					forwardedPortsListBox.Items.Add(forwardedPort);
+					Invoke(new MethodInvoker(() =>
+					{
+						Log("Local port forwarding from " + listenAddress + ":" + listenPort + " enabled");
+						forwardedPortsListBox.Items.Add(forwardedPort);
+						sourceTextBox.Text = string.Empty;
+						destinationTextBox.Text = string.Empty;
+					}));
 				},
 				StreamError = error =>
 				{
@@ -148,15 +159,21 @@ namespace TSTunnels.Server
 					}
 					else
 					{
-						Log("Cancelled local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
-						forwardedPortsListBox.Items.Remove(forwardedPort);
+						Invoke(new MethodInvoker(() =>
+						{
+							Log("Cancelled local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
+							forwardedPortsListBox.Items.Remove(forwardedPort);
+							sourceTextBox.Text = listenAddress + ":" + listenPort;
+							destinationTextBox.Text = connectAddress + ":" + connectPort;
+							localRadioButton.Checked = true;
+							if (CloseInProgress && forwardedPortsListBox.Items.Count == 0) Close();
+						}));
 					}
 				},
 				AcceptRequest = request =>
 				{
-					Log("Opening forwarded connection " + request.RemoteEndPoint + " to " +
-						connectAddress + ":" + connectPort);
-					new ConnectRequest(request.StreamIndex, connectAddress, connectPort).Process(this);
+					Log("Opening forwarded connection " + request.RemoteEndPoint + " to " + connectAddress + ":" + connectPort);
+					new ConnectRequest(request.StreamIndex, request.RemoteEndPoint, connectAddress, connectPort).Process(this);
 				},
 			};
 			lock (clientListeners)
@@ -178,7 +195,7 @@ namespace TSTunnels.Server
 					var streamIndex = ++ConnectionCount;
 					Log("Attempting to forward remote port " + client.Client.RemoteEndPoint + " to " + connectAddress + ":" + connectPort);
 					Streams[streamIndex] = client.GetStream();
-					WriteMessage(new ConnectRequest(streamIndex, connectAddress, connectPort));
+					WriteMessage(new ConnectRequest(streamIndex, client.Client.RemoteEndPoint.ToString(), connectAddress, connectPort));
 				}, exception => Invoke(new MethodInvoker(() =>
 				{
 					if (forwardedPort == null)
@@ -189,6 +206,10 @@ namespace TSTunnels.Server
 					{
 						Log("Cancelled remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
 						forwardedPortsListBox.Items.Remove(forwardedPort);
+						sourceTextBox.Text = listenAddress + ":" + listenPort;
+						destinationTextBox.Text = connectAddress + ":" + connectPort;
+						remoteRadioButton.Checked = true;
+						if (CloseInProgress && forwardedPortsListBox.Items.Count == 0) Close();
 					}
 				})));
 				Log("Remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
@@ -205,6 +226,8 @@ namespace TSTunnels.Server
 					},
 				};
 				forwardedPortsListBox.Items.Add(forwardedPort);
+				sourceTextBox.Text = string.Empty;
+				destinationTextBox.Text = string.Empty;
 			}
 			catch (Exception ex)
 			{
@@ -212,15 +235,7 @@ namespace TSTunnels.Server
 			}
 		}
 
-		private void Log(object message)
-		{
-			if (InvokeRequired)
-			{
-				Invoke(new Action<object>(Log), new[] {"Non-UI-Thread: " + message});
-				return;
-			}
-			eventLogListBox.SelectedIndex = eventLogListBox.Items.Add(DateTime.Now + "\t" + message);
-		}
+		#region Implementation of IStreamServer
 
 		public void MessageReceived(ChannelMessage msg)
 		{
@@ -231,7 +246,7 @@ namespace TSTunnels.Server
 					break;
 				case MessageType.HelloResponse:
 					{
-						timer1.Enabled = false;
+						Invoke(new MethodInvoker(() => timer1.Enabled = false));
 						var response = (HelloResponse)msg;
 						Log(response.MachineName + " connected to " + Environment.MachineName);
 					}
@@ -285,8 +300,6 @@ namespace TSTunnels.Server
 			}
 		}
 
-		#region Implementation of IStreamServer
-
 		public int ConnectionCount { get; set; }
 		public IDictionary<int, Stream> Streams { get; private set; }
 		public IDictionary<int, TcpListener> Listeners { get; private set; }
@@ -297,8 +310,19 @@ namespace TSTunnels.Server
 			int written;
 			var ret = WtsApi32.WTSVirtualChannelWrite(mHandle, data, data.Length, out written);
 			if (ret) return;
-			Log(new Win32Exception());
-			return;
+			var exception = new Win32Exception();
+			if (!InvokeRequired && timer1.Enabled && exception.NativeErrorCode == 1 /* Incorrect Function */) return;
+			Log("WriteMessage failed: " + exception);
+		}
+
+		public void Log(object message)
+		{
+			if (InvokeRequired)
+			{
+				Invoke(new Action<object>(Log), new[] { "Non-UI-Thread: " + message });
+				return;
+			}
+			eventLogListBox.SelectedIndex = eventLogListBox.Items.Add(DateTime.Now + "\t" + message);
 		}
 
 		#endregion
@@ -316,13 +340,13 @@ namespace TSTunnels.Server
 				var listenAddress = listenEndPoint.Length > 1 ? listenEndPoint[0] : "127.0.0.1";
 				var listenPort = int.Parse(listenEndPoint.Length > 1 ? listenEndPoint[1] : listenEndPoint[0]);
 				var connectEndPoint = destinationTextBox.Text.Split(':');
-				if (connectEndPoint.Length != 2)
+				if (connectEndPoint[0].Length == 0 || connectEndPoint.Length > 2)
 				{
-					MessageBox.Show("You need to specify a destination address in the form \"host.name:port\"", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					MessageBox.Show("You need to specify a destination address in the form \"[host.name:]port\"", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					return;
 				}
-				var connectAddress = connectEndPoint[0];
-				var connectPort = int.Parse(connectEndPoint[1]);
+				var connectAddress = connectEndPoint.Length > 1 ? connectEndPoint[0] : "127.0.0.1";
+				var connectPort = int.Parse(connectEndPoint.Length > 1 ? connectEndPoint[1] : connectEndPoint[0]);
 				(localRadioButton.Checked ? (CreatePort)CreateClientPort : CreateServerPort)(listenAddress, listenPort, connectAddress, connectPort);
 			}
 			catch (Exception ex)
