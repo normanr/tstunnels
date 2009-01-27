@@ -9,9 +9,11 @@ namespace TSTunnels.Common
 {
 	public interface IStreamServer
 	{
+		void MessageReceived(ChannelMessage msg);
 		int ConnectionCount { get; set; }
 		IDictionary<int, Stream> Streams { get; }
 		IDictionary<int, TcpListener> Listeners { get; }
 		void WriteMessage(ChannelMessage msg);
+		void Log(object message);
 	}
 }

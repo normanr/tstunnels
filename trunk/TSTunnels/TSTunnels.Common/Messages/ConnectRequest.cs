@@ -10,13 +10,15 @@ namespace TSTunnels.Common.Messages
 	public class ConnectRequest : ChannelMessage
 	{
 		public readonly int StreamIndex;
+		public readonly string LocalEndPoint;
 		public readonly string Address;
 		public readonly int Port;
 
-		public ConnectRequest(int StreamIndex, string Address, int Port)
+		public ConnectRequest(int StreamIndex, string LocalEndPoint, string Address, int Port)
 			: base(MessageType.ConnectRequest)
 		{
 			this.StreamIndex = StreamIndex;
+			this.LocalEndPoint = LocalEndPoint;
 			this.Address = Address;
 			this.Port = Port;
 		}
@@ -25,6 +27,7 @@ namespace TSTunnels.Common.Messages
 			: base(reader)
 		{
 			StreamIndex = reader.ReadInt32();
+			LocalEndPoint = reader.ReadString();
 			Address = reader.ReadString();
 			Port = reader.ReadInt32();
 		}
@@ -33,6 +36,7 @@ namespace TSTunnels.Common.Messages
 		{
 			base.Serialize(writer);
 			writer.Write(StreamIndex);
+			writer.Write(LocalEndPoint);
 			writer.Write(Address);
 			writer.Write(Port);
 		}
@@ -46,7 +50,7 @@ namespace TSTunnels.Common.Messages
 				{
 					client.EndConnect(ar);
 					server.Streams[StreamIndex] = client.GetStream();
-					var connectResult = new ConnectResponse(StreamIndex, client.Client.RemoteEndPoint.ToString());
+					var connectResult = new ConnectResponse(StreamIndex, LocalEndPoint, client.Client.RemoteEndPoint.ToString());
 					connectResult.Process(server);
 					server.WriteMessage(connectResult);
 				}
