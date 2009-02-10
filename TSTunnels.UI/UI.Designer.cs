@@ -1,6 +1,6 @@
-﻿namespace TSTunnels.Server
+﻿namespace TSTunnels.UI
 {
-	partial class Server
+	partial class UI
 	{
 		/// <summary>
 		/// Required designer variable.
@@ -29,8 +29,6 @@
 		private void InitializeComponent()
 		{
 			this.components = new System.ComponentModel.Container();
-			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.eventLogListBox = new System.Windows.Forms.ListBox();
 			this.eventLogGroupBox = new System.Windows.Forms.GroupBox();
 			this.portForwardingGroupBox = new System.Windows.Forms.GroupBox();
@@ -48,15 +46,6 @@
 			this.eventLogGroupBox.SuspendLayout();
 			this.portForwardingGroupBox.SuspendLayout();
 			this.SuspendLayout();
-			// 
-			// backgroundWorker1
-			// 
-			this.backgroundWorker1.WorkerSupportsCancellation = true;
-			this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-			// 
-			// timer1
-			// 
-			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
 			// 
 			// eventLogListBox
 			// 
@@ -213,7 +202,7 @@
 			this.sourceTextBox.Size = new System.Drawing.Size(150, 20);
 			this.sourceTextBox.TabIndex = 2;
 			// 
-			// Server
+			// UI
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -222,12 +211,12 @@
 			this.Controls.Add(this.eventLogGroupBox);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.MaximizeBox = false;
-			this.Name = "Server";
+			this.Name = "UI";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Remote Desktop Tunnels";
-			this.Load += new System.EventHandler(this.Server_Load);
-			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Server_FormClosed);
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Server_FormClosing);
+			this.Load += new System.EventHandler(this.UI_Load);
+			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.UI_FormClosed);
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.UI_FormClosing);
 			this.eventLogGroupBox.ResumeLayout(false);
 			this.portForwardingGroupBox.ResumeLayout(false);
 			this.portForwardingGroupBox.PerformLayout();
@@ -237,8 +226,6 @@
 
 		#endregion
 
-		private System.ComponentModel.BackgroundWorker backgroundWorker1;
-		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.ListBox eventLogListBox;
 		private System.Windows.Forms.GroupBox eventLogGroupBox;
 		private System.Windows.Forms.GroupBox portForwardingGroupBox;
