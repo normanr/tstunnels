@@ -48,7 +48,7 @@ namespace TSTunnels.Common.Messages
 			}
 			catch (Exception ex)
 			{
-				server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
+				server.WriteMessage(new StreamError(StreamIndex, ex));
 			}
 		}
 	}

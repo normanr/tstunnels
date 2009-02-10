@@ -90,7 +90,6 @@ namespace TSTunnels.UI
 				Invoke(new EventHandler<MessageLoggedEventArgs>(Server_MessageLogged), new[] { sender, e });
 				return;
 			}
-			if (!portForwardingGroupBox.Enabled && e.Message == "RDP Virtual channel Write Failed: Incorrect Function") return;
 			AppendLogMessage(e.Message);
 		}
 

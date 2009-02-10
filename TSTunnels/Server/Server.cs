@@ -151,7 +151,7 @@ namespace TSTunnels.Server
 						Remove = () =>
 						{
 							Log("Cancelling local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort + " requested");
-							WriteMessage(new StreamError(listenIndex, new EndOfStreamException().ToString()));
+							WriteMessage(new StreamError(listenIndex, new EndOfStreamException()));
 						},
 					};
 					Log("Local port forwarding from " + listenAddress + ":" + listenPort + " enabled");
@@ -161,7 +161,7 @@ namespace TSTunnels.Server
 				{
 					if (forwardedPort == null)
 					{
-						Log("Local port forwarding from " + listenAddress + ":" + listenPort + " failed: " + error.Exception);
+						Log("Local port forwarding from " + listenAddress + ":" + listenPort + " failed: " + error.Message);
 						lock (clientListeners)
 						{
 							if (clientListeners.ContainsKey(listenIndex)) clientListeners.Remove(listenIndex);
@@ -220,7 +220,7 @@ namespace TSTunnels.Server
 					Remove = () =>
 					{
 						Log("Cancelling remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
-						new StreamError(listenIndex, new EndOfStreamException().ToString()).Process(this);
+						new StreamError(listenIndex, new EndOfStreamException()).Process(this);
 					},
 				};
 				OnForwardedPortAdded(forwardedPort);
@@ -253,9 +253,11 @@ namespace TSTunnels.Server
 					{
 						var response = (HelloResponse)msg;
 						if (!SeenHello)
+						{
+							SeenHello = true;
 							Log(response.MachineName + " connected to " + Environment.MachineName);
-						SeenHello = true;
-						OnConnected(response.MachineName);
+							OnConnected(response.MachineName);
+						}
 					}
 					break;
 				case MessageType.ListenResponse:
@@ -314,6 +316,7 @@ namespace TSTunnels.Server
 			var ret = WtsApi32.WTSVirtualChannelWrite(mHandle, data, data.Length, out written);
 			if (ret) return true;
 			var ex = new Win32Exception();
+			if (!SeenHello && ex.NativeErrorCode == 1 /* Incorrect Function */) return false;
 			Log("RDP Virtual channel Write Failed: " + ex.Message);
 			return false;
 		}

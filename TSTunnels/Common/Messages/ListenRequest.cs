@@ -43,12 +43,12 @@ namespace TSTunnels.Common.Messages
 					var streamIndex = --server.ConnectionCount;
 					server.Streams[streamIndex] = client.GetStream();
 					server.WriteMessage(new AcceptRequest(StreamIndex, streamIndex, client.Client.RemoteEndPoint.ToString()));
-				}, exception => server.WriteMessage(new StreamError(StreamIndex, new EndOfStreamException().ToString())));
+				}, exception => server.WriteMessage(new StreamError(StreamIndex, new EndOfStreamException())));
 				server.WriteMessage(new ListenResponse(StreamIndex));
 			}
 			catch (Exception ex)
 			{
-				server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
+				server.WriteMessage(new StreamError(StreamIndex, ex));
 			}
 		}
 	}
