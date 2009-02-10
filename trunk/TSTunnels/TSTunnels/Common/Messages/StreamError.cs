@@ -10,32 +10,40 @@ namespace TSTunnels.Common.Messages
 	public class StreamError : ChannelMessage
 	{
 		public readonly int StreamIndex;
-		public readonly string Exception;
+		public readonly string ExceptionType;
+		public readonly string Message;
+		public readonly string StackTrace;
 
-		public StreamError(int StreamIndex, string Exception)
+		public StreamError(int StreamIndex, Exception Exception)
 			: base(MessageType.StreamError)
 		{
 			this.StreamIndex = StreamIndex;
-			this.Exception = Exception;
+			ExceptionType = Exception.GetType().Name;
+			Message = Exception.Message ?? "";
+			StackTrace = Exception.StackTrace ?? "";
 		}
 
 		protected StreamError(BinaryReader reader)
 			: base(reader)
 		{
 			StreamIndex = reader.ReadInt32();
-			Exception = reader.ReadString();
+			ExceptionType = reader.ReadString();
+			Message = reader.ReadString();
+			StackTrace = reader.ReadString();
 		}
 
 		protected override void Serialize(BinaryWriter writer)
 		{
 			base.Serialize(writer);
 			writer.Write(StreamIndex);
-			writer.Write(Exception);
+			writer.Write(ExceptionType);
+			writer.Write(Message);
+			writer.Write(StackTrace);
 		}
 
 		public override string ToString()
 		{
-			return base.ToString() + ": " + Exception;
+			return base.ToString() + ": " + ExceptionType + ": " + Message;
 		}
 
 		public void Process(IStreamServer server)
@@ -52,11 +60,11 @@ namespace TSTunnels.Common.Messages
 				if (!streams.ContainsKey(StreamIndex)) return;
 				stream = streams[StreamIndex];
 			}
-			if (Exception.Length != 0)
+			if (Message.Length != 0)
 			{
 				try
 				{
-					var data = Encoding.UTF8.GetBytes(Exception);
+					var data = Encoding.UTF8.GetBytes(Message);
 					stream.Write(data, 0, data.Length);
 				}
 				catch (IOException)

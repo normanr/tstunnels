@@ -47,7 +47,7 @@ namespace TSTunnels.Common.Messages
 				ex =>
 				{
 					server.Log("Forwarded port closed: " + RemoteEndPoint + " to " + LocalEndPoint);
-					server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
+					server.WriteMessage(new StreamError(StreamIndex, ex));
 				}).Pump();
 		}
 	}
