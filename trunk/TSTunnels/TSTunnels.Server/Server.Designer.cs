@@ -32,8 +32,8 @@
 			this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.eventLogListBox = new System.Windows.Forms.ListBox();
-			this.groupBox1 = new System.Windows.Forms.GroupBox();
-			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.eventLogGroupBox = new System.Windows.Forms.GroupBox();
+			this.portForwardingGroupBox = new System.Windows.Forms.GroupBox();
 			this.remoteRadioButton = new System.Windows.Forms.RadioButton();
 			this.localRadioButton = new System.Windows.Forms.RadioButton();
 			this.destinationTextBox = new System.Windows.Forms.TextBox();
@@ -45,8 +45,8 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.forwardedPortsListBox = new System.Windows.Forms.ListBox();
 			this.sourceTextBox = new System.Windows.Forms.TextBox();
-			this.groupBox1.SuspendLayout();
-			this.groupBox2.SuspendLayout();
+			this.eventLogGroupBox.SuspendLayout();
+			this.portForwardingGroupBox.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// backgroundWorker1
@@ -67,40 +67,41 @@
 			this.eventLogListBox.Size = new System.Drawing.Size(650, 199);
 			this.eventLogListBox.TabIndex = 0;
 			// 
-			// groupBox1
+			// eventLogGroupBox
 			// 
-			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			this.eventLogGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.groupBox1.Controls.Add(this.eventLogListBox);
-			this.groupBox1.Location = new System.Drawing.Point(12, 207);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Size = new System.Drawing.Size(656, 219);
-			this.groupBox1.TabIndex = 1;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Event log";
+			this.eventLogGroupBox.Controls.Add(this.eventLogListBox);
+			this.eventLogGroupBox.Location = new System.Drawing.Point(12, 207);
+			this.eventLogGroupBox.Name = "eventLogGroupBox";
+			this.eventLogGroupBox.Size = new System.Drawing.Size(656, 219);
+			this.eventLogGroupBox.TabIndex = 1;
+			this.eventLogGroupBox.TabStop = false;
+			this.eventLogGroupBox.Text = "Event log";
 			// 
-			// groupBox2
+			// portForwardingGroupBox
 			// 
-			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+			this.portForwardingGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.groupBox2.Controls.Add(this.remoteRadioButton);
-			this.groupBox2.Controls.Add(this.localRadioButton);
-			this.groupBox2.Controls.Add(this.destinationTextBox);
-			this.groupBox2.Controls.Add(this.addButton);
-			this.groupBox2.Controls.Add(this.removeButton);
-			this.groupBox2.Controls.Add(this.label4);
-			this.groupBox2.Controls.Add(this.label3);
-			this.groupBox2.Controls.Add(this.label2);
-			this.groupBox2.Controls.Add(this.label1);
-			this.groupBox2.Controls.Add(this.forwardedPortsListBox);
-			this.groupBox2.Controls.Add(this.sourceTextBox);
-			this.groupBox2.Location = new System.Drawing.Point(12, 12);
-			this.groupBox2.Name = "groupBox2";
-			this.groupBox2.Size = new System.Drawing.Size(656, 189);
-			this.groupBox2.TabIndex = 0;
-			this.groupBox2.TabStop = false;
-			this.groupBox2.Text = "Port forwarding";
+			this.portForwardingGroupBox.Controls.Add(this.remoteRadioButton);
+			this.portForwardingGroupBox.Controls.Add(this.localRadioButton);
+			this.portForwardingGroupBox.Controls.Add(this.destinationTextBox);
+			this.portForwardingGroupBox.Controls.Add(this.addButton);
+			this.portForwardingGroupBox.Controls.Add(this.removeButton);
+			this.portForwardingGroupBox.Controls.Add(this.label4);
+			this.portForwardingGroupBox.Controls.Add(this.label3);
+			this.portForwardingGroupBox.Controls.Add(this.label2);
+			this.portForwardingGroupBox.Controls.Add(this.label1);
+			this.portForwardingGroupBox.Controls.Add(this.forwardedPortsListBox);
+			this.portForwardingGroupBox.Controls.Add(this.sourceTextBox);
+			this.portForwardingGroupBox.Enabled = false;
+			this.portForwardingGroupBox.Location = new System.Drawing.Point(12, 12);
+			this.portForwardingGroupBox.Name = "portForwardingGroupBox";
+			this.portForwardingGroupBox.Size = new System.Drawing.Size(656, 189);
+			this.portForwardingGroupBox.TabIndex = 0;
+			this.portForwardingGroupBox.TabStop = false;
+			this.portForwardingGroupBox.Text = "Port forwarding";
 			// 
 			// remoteRadioButton
 			// 
@@ -217,18 +218,19 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(680, 438);
-			this.Controls.Add(this.groupBox2);
-			this.Controls.Add(this.groupBox1);
-			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+			this.Controls.Add(this.portForwardingGroupBox);
+			this.Controls.Add(this.eventLogGroupBox);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
 			this.MaximizeBox = false;
 			this.Name = "Server";
-			this.Text = "TS Tunnels";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "Remote Desktop Tunnels";
 			this.Load += new System.EventHandler(this.Server_Load);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Server_FormClosed);
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Server_FormClosing);
-			this.groupBox1.ResumeLayout(false);
-			this.groupBox2.ResumeLayout(false);
-			this.groupBox2.PerformLayout();
+			this.eventLogGroupBox.ResumeLayout(false);
+			this.portForwardingGroupBox.ResumeLayout(false);
+			this.portForwardingGroupBox.PerformLayout();
 			this.ResumeLayout(false);
 
 		}
@@ -238,8 +240,8 @@
 		private System.ComponentModel.BackgroundWorker backgroundWorker1;
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.ListBox eventLogListBox;
-		private System.Windows.Forms.GroupBox groupBox1;
-		private System.Windows.Forms.GroupBox groupBox2;
+		private System.Windows.Forms.GroupBox eventLogGroupBox;
+		private System.Windows.Forms.GroupBox portForwardingGroupBox;
 		private System.Windows.Forms.ListBox forwardedPortsListBox;
 		private System.Windows.Forms.TextBox sourceTextBox;
 		private System.Windows.Forms.Button removeButton;

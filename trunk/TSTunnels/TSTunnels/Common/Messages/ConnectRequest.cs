@@ -56,8 +56,8 @@ namespace TSTunnels.Common.Messages
 				}
 				catch (Exception ex)
 				{
+					Debug.Print(DateTime.Now + " " + Environment.MachineName + ": " + ex);
 					server.WriteMessage(new StreamError(StreamIndex, ex.ToString()));
-					Debug.Print(ex.ToString());
 				}
 			}, null);
 		}
