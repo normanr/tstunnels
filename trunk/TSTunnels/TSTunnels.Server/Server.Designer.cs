@@ -221,7 +221,6 @@
 			this.Controls.Add(this.groupBox1);
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
 			this.MaximizeBox = false;
-			this.MinimizeBox = false;
 			this.Name = "Server";
 			this.Text = "TS Tunnels";
 			this.Load += new System.EventHandler(this.Server_Load);
