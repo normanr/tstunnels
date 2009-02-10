@@ -9,8 +9,6 @@ using System.Runtime.Serialization;
 
 namespace TSTunnels.Common.Messages
 {
-	public delegate void WriteMessage(ChannelMessage msg);
-
 	public abstract class ChannelMessage
 	{
 		//ATTENTION: name should have 7 or less chars

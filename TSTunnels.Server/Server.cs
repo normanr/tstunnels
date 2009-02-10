@@ -104,7 +104,6 @@ namespace TSTunnels.Server
 			public ForwardDirection Direction;
 			public string ListenEndPoint;
 			public string ConnectEndPoint;
-			public int StreamIndex;
 			public MethodInvoker Remove;
 
 			public override string ToString()
@@ -132,7 +131,6 @@ namespace TSTunnels.Server
 						Direction = ForwardDirection.Local,
 						ListenEndPoint = listenAddress + ":" + listenPort,
 						ConnectEndPoint = connectAddress + ":" + connectPort,
-						StreamIndex = listenIndex,
 						Remove = () =>
 						{
 							Log("Cancelling local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort + " requested");
@@ -218,7 +216,6 @@ namespace TSTunnels.Server
 					Direction = ForwardDirection.Remote,
 					ListenEndPoint = listenAddress + ":" + listenPort,
 					ConnectEndPoint = connectAddress + ":" + connectPort,
-					StreamIndex = listenIndex,
 					Remove = () =>
 					{
 						Log("Cancelling remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);

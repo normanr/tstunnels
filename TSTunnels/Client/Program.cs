@@ -1,35 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32;
-using TSTunnels.Client.WtsApi32;
 using TSTunnels.Common.Messages;
+using TSTunnels.Client.WtsApi32;
 
 namespace TSTunnels.Client
 {
 	public static class Program
 	{
 		private const string registryAddins = @"Software\Microsoft\Terminal Server Client\Default\AddIns\";
-
-		static Program()
-		{
-			AppDomain.CurrentDomain.AssemblyResolve += delegate(object sender, ResolveEventArgs args)
-			{
-				try
-				{
-					var location = typeof(Program).Assembly.Location;
-					return Assembly.LoadFrom(Path.Combine(Path.GetDirectoryName(location), args.Name.Split(',')[0] + ".dll"));
-				}
-				catch (Exception)
-				{
-					return null;
-				}
-			};
-		}
 
 		[ExportDllAttribute.ExportDll("DllRegisterServer", CallingConvention.StdCall)]
 		public static void DllRegisterServer()

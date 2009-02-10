@@ -71,9 +71,9 @@
     <Compile Include="WtsApi32.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TSTunnels.Common\TSTunnels.Common.csproj">
-      <Project>{A8ECE816-B7C9-4A5F-89DA-D090343490E9}</Project>
-      <Name>TSTunnels.Common</Name>
+    <ProjectReference Include="..\TSTunnels\TSTunnels.csproj">
+      <Project>{46202B33-3B41-4B2B-B349-9DE165C8883A}</Project>
+      <Name>TSTunnels</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
