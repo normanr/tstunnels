@@ -81,6 +81,8 @@ namespace TSTunnels.UI
 				return;
 			}
 			portForwardingGroupBox.Enabled = true;
+			toolTip1.SetToolTip(localRadioButton, "client -> " + e.MachineName + " => " + Environment.MachineName + " -> server");
+			toolTip1.SetToolTip(remoteRadioButton, "client -> " + Environment.MachineName + " => " + e.MachineName + " -> server");
 		}
 
 		public void Server_MessageLogged(object sender, MessageLoggedEventArgs e)
