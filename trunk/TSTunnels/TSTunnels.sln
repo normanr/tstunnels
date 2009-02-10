@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSTunnels.Server", "TSTunnels.Server\TSTunnels.Server.csproj", "{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSTunnels", "TSTunnels\TSTunnels.csproj", "{46202B33-3B41-4B2B-B349-9DE165C8883A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TSTunnels.UI", "TSTunnels.UI\TSTunnels.UI.csproj", "{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,14 +11,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{46202B33-3B41-4B2B-B349-9DE165C8883A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{46202B33-3B41-4B2B-B349-9DE165C8883A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46202B33-3B41-4B2B-B349-9DE165C8883A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46202B33-3B41-4B2B-B349-9DE165C8883A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D98224E-FDA0-422F-BDAA-8AF5BCE5F28A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

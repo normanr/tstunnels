@@ -1,30 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Windows.Forms;
+using System.Threading;
 using TSTunnels.Common;
 using TSTunnels.Common.Messages;
 
 namespace TSTunnels.Server
 {
-	public partial class Server : Form, IStreamServer
+	public class Server : IStreamServer
 	{
+		private IntPtr mHandle;
+		private BinaryReader reader;
+
+		public bool IsConnected { get; private set; }
+		private bool SeenHello;
+
+		public delegate void CreatePort(string listenAddress, int listenPort, string connectAddress, int connectPort);
+
+		class ClientListener
+		{
+			public Action<ListenResponse> ListenResponse;
+			public Action<StreamError> StreamError;
+			public Action<AcceptRequest> AcceptRequest;
+		}
+		private readonly Dictionary<int, ClientListener> clientListeners = new Dictionary<int, ClientListener>();
+
+		#region Events
+
+		public EventHandler<ConnectedEventArgs> Connected;
+
+		protected void OnConnected(string machineName)
+		{
+			if (Connected != null)
+				Connected(this, new ConnectedEventArgs(machineName));
+		}
+
+		public EventHandler<ForwardedPortEventArgs> ForwardedPortAdded;
+
+		protected void OnForwardedPortAdded(ForwardedPort forwardedPort)
+		{
+			if (ForwardedPortAdded != null)
+				ForwardedPortAdded(this, new ForwardedPortEventArgs(forwardedPort));
+		}
+
+		public EventHandler<ForwardedPortEventArgs> ForwardedPortRemoved;
+
+		protected void OnForwardedPortRemoved(ForwardedPort forwardedPort)
+		{
+			if (ForwardedPortRemoved != null)
+				ForwardedPortRemoved(this, new ForwardedPortEventArgs(forwardedPort));
+		}
+
+		public EventHandler<MessageLoggedEventArgs> MessageLogged;
+
+		protected void OnMessageLogged(string message)
+		{
+			if (MessageLogged != null)
+				MessageLogged(this, new MessageLoggedEventArgs(message));
+		}
+
+		#endregion
+
 		public Server()
 		{
-			InitializeComponent();
-			Icon = Win32Api.GetApplicationIcon();
 			Streams = new Dictionary<int, Stream>();
 			Listeners = new Dictionary<int, TcpListener>();
 		}
 
-		private IntPtr mHandle = IntPtr.Zero;
-		private BinaryReader reader;
-		private void Server_Load(object sender, EventArgs e)
+		private delegate void Action();
+		public void Connect()
 		{
 			mHandle = WtsApi32.WTSVirtualChannelOpen(IntPtr.Zero, -1, ChannelMessage.ChannelName);
 			if (mHandle == IntPtr.Zero)
@@ -44,33 +91,32 @@ namespace TSTunnels.Server
 				return;
 			}
 
-			backgroundWorker1.RunWorkerAsync();
-			timer1.Enabled = true;
-		}
+			IsConnected = true;
 
-		private bool CloseInProgress;
-		private void Server_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			if (CloseInProgress || forwardedPortsListBox.Items.Count == 0) return;
-			CloseInProgress = true;
-			e.Cancel = true;
-			Log("Cancelling all port forwardings");
-			foreach (ForwardedPort forwardedPort in forwardedPortsListBox.Items)
+			Action process = Process;
+			process.BeginInvoke(process.EndInvoke, null);
+
+			Action hello = () =>
 			{
-				forwardedPort.Remove();
-			}
+				while (!SeenHello && IsConnected)
+				{
+					WriteMessage(new HelloRequest());
+					Thread.Sleep(200);
+				}
+			};
+			hello.BeginInvoke(hello.EndInvoke, null);
 		}
 
-		private void Server_FormClosed(object sender, FormClosedEventArgs e)
+		public void Disconnect()
 		{
+			IsConnected = false;
 			if (reader != null) reader.Close();
 			var ret = WtsApi32.WTSVirtualChannelClose(mHandle);
-			backgroundWorker1.CancelAsync();
 		}
 
-		private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+		private void Process()
 		{
-			while (!backgroundWorker1.CancellationPending)
+			while (IsConnected)
 			{
 				try
 				{
@@ -89,37 +135,7 @@ namespace TSTunnels.Server
 			}
 		}
 
-		private void timer1_Tick(object sender, EventArgs e)
-		{
-			WriteMessage(new HelloRequest());
-		}
-
-		private delegate void CreatePort(string listenAddress, int listenPort, string connectAddress, int connectPort);
-		enum ForwardDirection
-		{
-			Local,
-			Remote
-		}
-		class ForwardedPort
-		{
-			public ForwardDirection Direction;
-			public string ListenEndPoint;
-			public string ConnectEndPoint;
-			public MethodInvoker Remove;
-
-			public override string ToString()
-			{
-				return Direction + "\t" + ListenEndPoint + "\t" + ConnectEndPoint;
-			}
-		}
-		class ClientListener
-		{
-			public Action<ListenResponse> ListenResponse;
-			public Action<StreamError> StreamError;
-			public Action<AcceptRequest> AcceptRequest;
-		}
-		private readonly Dictionary<int, ClientListener> clientListeners = new Dictionary<int, ClientListener>();
-		private void CreateClientPort(string listenAddress, int listenPort, string connectAddress, int connectPort)
+		public void CreateClientPort(string listenAddress, int listenPort, string connectAddress, int connectPort)
 		{
 			var listenIndex = ++ConnectionCount;
 			ForwardedPort forwardedPort = null;
@@ -138,13 +154,8 @@ namespace TSTunnels.Server
 							WriteMessage(new StreamError(listenIndex, new EndOfStreamException().ToString()));
 						},
 					};
-					Invoke(new MethodInvoker(() =>
-					{
-						Log("Local port forwarding from " + listenAddress + ":" + listenPort + " enabled");
-						forwardedPortsListBox.Items.Add(forwardedPort);
-						sourceTextBox.Text = string.Empty;
-						destinationTextBox.Text = string.Empty;
-					}));
+					Log("Local port forwarding from " + listenAddress + ":" + listenPort + " enabled");
+					OnForwardedPortAdded(forwardedPort);
 				},
 				StreamError = error =>
 				{
@@ -158,15 +169,8 @@ namespace TSTunnels.Server
 					}
 					else
 					{
-						Invoke(new MethodInvoker(() =>
-						{
-							Log("Cancelled local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
-							forwardedPortsListBox.Items.Remove(forwardedPort);
-							sourceTextBox.Text = listenAddress + ":" + listenPort;
-							destinationTextBox.Text = connectAddress + ":" + connectPort;
-							localRadioButton.Checked = true;
-							if (CloseInProgress && forwardedPortsListBox.Items.Count == 0) Close();
-						}));
+						Log("Cancelled local port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
+						OnForwardedPortRemoved(forwardedPort);
 					}
 				},
 				AcceptRequest = request =>
@@ -183,7 +187,7 @@ namespace TSTunnels.Server
 			WriteMessage(new ListenRequest(listenIndex, listenAddress, listenPort));
 		}
 
-		private void CreateServerPort(string listenAddress, int listenPort, string connectAddress, int connectPort)
+		public void CreateServerPort(string listenAddress, int listenPort, string connectAddress, int connectPort)
 		{
 			try
 			{
@@ -195,7 +199,7 @@ namespace TSTunnels.Server
 					Log("Attempting to forward remote port " + client.Client.RemoteEndPoint + " to " + connectAddress + ":" + connectPort);
 					Streams[streamIndex] = client.GetStream();
 					WriteMessage(new ConnectRequest(streamIndex, client.Client.RemoteEndPoint.ToString(), connectAddress, connectPort));
-				}, exception => Invoke(new MethodInvoker(() =>
+				}, exception =>
 				{
 					if (forwardedPort == null)
 					{
@@ -204,13 +208,9 @@ namespace TSTunnels.Server
 					else
 					{
 						Log("Cancelled remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
-						forwardedPortsListBox.Items.Remove(forwardedPort);
-						sourceTextBox.Text = listenAddress + ":" + listenPort;
-						destinationTextBox.Text = connectAddress + ":" + connectPort;
-						remoteRadioButton.Checked = true;
-						if (CloseInProgress && forwardedPortsListBox.Items.Count == 0) Close();
+						OnForwardedPortRemoved(forwardedPort);
 					}
-				})));
+				});
 				Log("Remote port " + listenAddress + ":" + listenPort + " forwarding to " + connectAddress + ":" + connectPort);
 				forwardedPort = new ForwardedPort
 				{
@@ -223,9 +223,7 @@ namespace TSTunnels.Server
 						new StreamError(listenIndex, new EndOfStreamException().ToString()).Process(this);
 					},
 				};
-				forwardedPortsListBox.Items.Add(forwardedPort);
-				sourceTextBox.Text = string.Empty;
-				destinationTextBox.Text = string.Empty;
+				OnForwardedPortAdded(forwardedPort);
 			}
 			catch (Exception ex)
 			{
@@ -234,6 +232,15 @@ namespace TSTunnels.Server
 		}
 
 		#region Implementation of IStreamServer
+
+		public int ConnectionCount { get; set; }
+		public IDictionary<int, TcpListener> Listeners { get; private set; }
+		public IDictionary<int, Stream> Streams { get; private set; }
+
+		public void Log(object message)
+		{
+			OnMessageLogged(message.ToString());
+		}
 
 		public void MessageReceived(ChannelMessage msg)
 		{
@@ -245,12 +252,10 @@ namespace TSTunnels.Server
 				case MessageType.HelloResponse:
 					{
 						var response = (HelloResponse)msg;
-						Invoke(new MethodInvoker(() =>
-						{
-							timer1.Enabled = false;
-							portForwardingGroupBox.Enabled = true;
+						if (!SeenHello)
 							Log(response.MachineName + " connected to " + Environment.MachineName);
-						}));
+						SeenHello = true;
+						OnConnected(response.MachineName);
 					}
 					break;
 				case MessageType.ListenResponse:
@@ -302,10 +307,6 @@ namespace TSTunnels.Server
 			}
 		}
 
-		public int ConnectionCount { get; set; }
-		public IDictionary<int, Stream> Streams { get; private set; }
-		public IDictionary<int, TcpListener> Listeners { get; private set; }
-
 		public bool WriteMessage(ChannelMessage msg)
 		{
 			var data = msg.ToByteArray();
@@ -313,55 +314,10 @@ namespace TSTunnels.Server
 			var ret = WtsApi32.WTSVirtualChannelWrite(mHandle, data, data.Length, out written);
 			if (ret) return true;
 			var ex = new Win32Exception();
-			if (!InvokeRequired && timer1.Enabled && ex.NativeErrorCode == 1 /* Incorrect Function */) return false;
 			Log("RDP Virtual channel Write Failed: " + ex.Message);
 			return false;
 		}
 
-		public void Log(object message)
-		{
-			if (InvokeRequired)
-			{
-				Invoke(new Action<object>(Log), new[] { "Non-UI-Thread: " + message });
-				return;
-			}
-			eventLogListBox.SelectedIndex = eventLogListBox.Items.Add(DateTime.Now + "\t" + message);
-		}
-
 		#endregion
-
-		private void addButton_Click(object sender, EventArgs e)
-		{
-			try
-			{
-				var listenEndPoint = sourceTextBox.Text.Split(':');
-				if (listenEndPoint[0].Length == 0 || listenEndPoint.Length > 2)
-				{
-					MessageBox.Show("You need to specify a source address in the form \"[host.name:]port\"", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-				var listenAddress = listenEndPoint.Length > 1 ? listenEndPoint[0] : "127.0.0.1";
-				var listenPort = int.Parse(listenEndPoint.Length > 1 ? listenEndPoint[1] : listenEndPoint[0]);
-				var connectEndPoint = destinationTextBox.Text.Split(':');
-				if (connectEndPoint[0].Length == 0 || connectEndPoint.Length > 2)
-				{
-					MessageBox.Show("You need to specify a destination address in the form \"[host.name:]port\"", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-					return;
-				}
-				var connectAddress = connectEndPoint.Length > 1 ? connectEndPoint[0] : "127.0.0.1";
-				var connectPort = int.Parse(connectEndPoint.Length > 1 ? connectEndPoint[1] : connectEndPoint[0]);
-				(localRadioButton.Checked ? (CreatePort)CreateClientPort : CreateServerPort)(listenAddress, listenPort, connectAddress, connectPort);
-			}
-			catch (Exception ex)
-			{
-				Log(ex);
-			}
-		}
-
-		private void removeButton_Click(object sender, EventArgs e)
-		{
-			var forwardedPort = forwardedPortsListBox.SelectedItem as ForwardedPort;
-			if (forwardedPort != null) forwardedPort.Remove();
-		}
 	}
 }

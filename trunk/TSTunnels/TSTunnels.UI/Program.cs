@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace TSTunnels.Server
+namespace TSTunnels.UI
 {
 	static class Program
 	{
@@ -14,7 +14,7 @@ namespace TSTunnels.Server
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
-			Application.Run(new Server());
+			Application.Run(new UI());
 		}
 	}
 }

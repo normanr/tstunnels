@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TSTunnels.Server.Properties
+namespace TSTunnels.UI.Properties
 {
 
 

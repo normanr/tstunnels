@@ -59,6 +59,13 @@
     <Compile Include="Common\StreamPump.cs" />
     <Compile Include="Common\TcpListenerHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Server\ConnectedEventArgs.cs.cs" />
+    <Compile Include="Server\ForwardedPort.cs" />
+    <Compile Include="Server\ForwardedPortEventArgs.cs" />
+    <Compile Include="Server\MessageLoggedEventArgs.cs.cs" />
+    <Compile Include="Server\Server.cs">
+    </Compile>
+    <Compile Include="Server\WtsApi32.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace TSTunnels.Server
+namespace TSTunnels.UI
 {
 	class Win32Api
 	{
