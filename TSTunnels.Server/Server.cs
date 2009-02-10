@@ -17,6 +17,7 @@ namespace TSTunnels.Server
 		public Server()
 		{
 			InitializeComponent();
+			Icon = Win32Api.GetApplicationIcon();
 			Streams = new Dictionary<int, Stream>();
 			Listeners = new Dictionary<int, TcpListener>();
 		}
@@ -28,7 +29,7 @@ namespace TSTunnels.Server
 			mHandle = WtsApi32.WTSVirtualChannelOpen(IntPtr.Zero, -1, ChannelMessage.ChannelName);
 			if (mHandle == IntPtr.Zero)
 			{
-				Log(new Win32Exception());
+				Log("RDP Virtual channel Open Failed: " + new Win32Exception().Message);
 				return;
 			}
 
@@ -39,7 +40,7 @@ namespace TSTunnels.Server
 			}
 			catch (Win32Exception ex)
 			{
-				Log(ex);
+				Log("RDP Virtual channel Query Failed: " + ex.Message);
 				return;
 			}
 
@@ -243,9 +244,13 @@ namespace TSTunnels.Server
 					break;
 				case MessageType.HelloResponse:
 					{
-						Invoke(new MethodInvoker(() => timer1.Enabled = false));
 						var response = (HelloResponse)msg;
-						Log(response.MachineName + " connected to " + Environment.MachineName);
+						Invoke(new MethodInvoker(() =>
+						{
+							timer1.Enabled = false;
+							portForwardingGroupBox.Enabled = true;
+							Log(response.MachineName + " connected to " + Environment.MachineName);
+						}));
 					}
 					break;
 				case MessageType.ListenResponse:
@@ -301,15 +306,16 @@ namespace TSTunnels.Server
 		public IDictionary<int, Stream> Streams { get; private set; }
 		public IDictionary<int, TcpListener> Listeners { get; private set; }
 
-		public void WriteMessage(ChannelMessage msg)
+		public bool WriteMessage(ChannelMessage msg)
 		{
 			var data = msg.ToByteArray();
 			int written;
 			var ret = WtsApi32.WTSVirtualChannelWrite(mHandle, data, data.Length, out written);
-			if (ret) return;
-			var exception = new Win32Exception();
-			if (!InvokeRequired && timer1.Enabled && exception.NativeErrorCode == 1 /* Incorrect Function */) return;
-			Log("WriteMessage failed: " + exception);
+			if (ret) return true;
+			var ex = new Win32Exception();
+			if (!InvokeRequired && timer1.Enabled && ex.NativeErrorCode == 1 /* Incorrect Function */) return false;
+			Log("RDP Virtual channel Write Failed: " + ex.Message);
+			return false;
 		}
 
 		public void Log(object message)

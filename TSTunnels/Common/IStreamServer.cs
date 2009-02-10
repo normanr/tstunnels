@@ -13,7 +13,7 @@ namespace TSTunnels.Common
 		int ConnectionCount { get; set; }
 		IDictionary<int, Stream> Streams { get; }
 		IDictionary<int, TcpListener> Listeners { get; }
-		void WriteMessage(ChannelMessage msg);
+		bool WriteMessage(ChannelMessage msg);
 		void Log(object message);
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -21,6 +22,7 @@ namespace TSTunnels.Common
 				}
 				catch (Exception ex)
 				{
+					Debug.Print(DateTime.Now + " " + Environment.MachineName + ": " + ex);
 					exceptionDelegate(ex);
 					return null;
 				}

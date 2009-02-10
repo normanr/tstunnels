@@ -44,7 +44,7 @@ namespace TSTunnels.Client
 
 		private void VirtualChannelInitEventProc(IntPtr initHandle, ChannelEvents Event, byte[] data, int dataLength)
 		{
-			Debug.WriteLine(DateTime.Now + ": VirtualChannelInitEventProc: " + Event);
+			Debug.Print(DateTime.Now + " " + Environment.MachineName + ": VirtualChannelInitEventProc: " + Event);
 			switch (Event)
 			{
 				case ChannelEvents.Initialized:
@@ -80,7 +80,7 @@ namespace TSTunnels.Client
 		private MemoryStream memoryStream;
 		public void VirtualChannelOpenEvent(int openHandle, ChannelEvents Event, IntPtr pData, int dataLength, uint totalLength, ChannelFlags dataFlags)
 		{
-			Debug.WriteLine(DateTime.Now + ": VirtualChannelOpenEvent: " + Event);
+			Debug.Print(DateTime.Now + " " + Environment.MachineName + ": VirtualChannelOpenEvent: " + Event);
 			switch (Event)
 			{
 				case ChannelEvents.DataReceived:
@@ -155,7 +155,7 @@ namespace TSTunnels.Client
 		public IDictionary<int, Stream> Streams { get; private set; }
 		public IDictionary<int, TcpListener> Listeners { get; private set; }
 
-		public void WriteMessage(ChannelMessage msg)
+		public bool WriteMessage(ChannelMessage msg)
 		{
 			var data = msg.ToByteArray();
 			var len = 4 + data.Length;
@@ -163,6 +163,7 @@ namespace TSTunnels.Client
 			Marshal.WriteInt32(ptr, 0, data.Length);
 			Marshal.Copy(data, 0, new IntPtr(ptr.ToInt32() + 4), data.Length);
 			var ret = entryPoints.VirtualChannelWrite(OpenChannel, ptr, (uint)len, ptr);
+			return ret == ChannelReturnCodes.Ok;
 		}
 
 		public void Log(object message)
