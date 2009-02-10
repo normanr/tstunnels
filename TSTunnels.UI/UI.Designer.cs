@@ -43,6 +43,7 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.forwardedPortsListBox = new System.Windows.Forms.ListBox();
 			this.sourceTextBox = new System.Windows.Forms.TextBox();
+			this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
 			this.eventLogGroupBox.SuspendLayout();
 			this.portForwardingGroupBox.SuspendLayout();
 			this.SuspendLayout();
@@ -240,6 +241,7 @@
 		private System.Windows.Forms.Button addButton;
 		private System.Windows.Forms.RadioButton remoteRadioButton;
 		private System.Windows.Forms.RadioButton localRadioButton;
+		private System.Windows.Forms.ToolTip toolTip1;
 	}
 }
 

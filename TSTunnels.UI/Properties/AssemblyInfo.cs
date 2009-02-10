@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TSTunnels.UI")]
+[assembly: AssemblyTitle("Remote Desktop Tunnels")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TSTunnels.UI")]
+[assembly: AssemblyProduct("Remote Desktop Tunnels")]
 [assembly: AssemblyCopyright("Copyright © Darkskies 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
